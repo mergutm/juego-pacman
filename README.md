@@ -617,6 +617,7 @@ requestAnimationFrame(dibujarFrame);
 
 # Control de la dirección del pacman
 
+* `pacmanDir` es una variable global.
 
 ```Javascript
 
