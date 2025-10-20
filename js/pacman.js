@@ -122,7 +122,7 @@ function dibujaFruta(ctx, c, r, size) {
     // una cereza estilizada
     const cx = c * size + size / 2
     const cy = r * size + size / 2
-    const rFruit = Math.max(5, size * 0.12)
+    const rFruit = Math.max(5, size * 0.35)
 
     // tallo
     ctx.beginPath()
@@ -160,7 +160,7 @@ function dibujaFruta(ctx, c, r, size) {
 function dibujarPacman(ctx, c, r, size, direction = 'right', open = 0.2) {
     const cx = c * size + size / 2
     const cy = r * size + size / 2
-    const radius = Math.max(6, size * 0.42)
+    const radius = Math.max(6, size * 0.40)
 
     const mouth = open * Math.PI // ángulo de apertura
 
@@ -211,12 +211,12 @@ function dibujarPacman(ctx, c, r, size, direction = 'right', open = 0.2) {
         ey -= radius * 0.45
     }
     if (direction === 'up') {
-        ex -= 0
-        ey -= radius * 0.6
+        ey -= 0
+        ex -= radius * 0.5
     }
     if (direction === 'down') {
-        ex -= 0
-        ey += radius * 0.1
+        ey -= 0
+        ex += radius * 0.5
     }
 
     //ojo pacman
