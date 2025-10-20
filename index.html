@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+    <!-- 
+    role="application"
+      Este atributo ARIA (Accessible Rich Internet Applications) marca el div como una aplicación o componente complejo en lugar de un simple contenido de página.
+      Es útil para dar a entender a las tecnologías de asistencia que el área tiene una interacción compleja, en este caso, el juego de Pacman.
+  
+    aria-label="Pacman canvas"
+      Este atributo ARIA proporciona una descripción textual del elemento
+    -->
+   <div class="area" role="application" aria-label="Pacman canvas">
+    <canvas id="lienzo" width="800" height="800"></canvas>
+  </div>
+  
+  <script src="js/pacman.js"></script>
+</body>
+</html>
