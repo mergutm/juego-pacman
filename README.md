@@ -272,7 +272,7 @@ Se obtendrá algo como lo que se muestra en la siguiente imagen:
 function dibujarPotenciadora (ctx, c, r, size, relleno = '#ffb3c1', colorBorde = 'rgba(255,255,255,0.15)' ) {
   const cx = c * size + size / 2
   const cy = r * size + size / 2
-  const radius = Math.max(4, size * 0.12)
+  const radius = Math.max(4, size * 0.35)
 
   //relleno
   ctx.beginPath()
@@ -630,7 +630,6 @@ window.addEventListener('keydown', (e) => {
     if (key === 'ArrowUp') pacmanDir = 'up';
     if (key === 'ArrowDown') pacmanDir = 'down';
 });
-
 ```
 
 

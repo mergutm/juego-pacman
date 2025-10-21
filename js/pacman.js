@@ -15,7 +15,7 @@ const MAPA = [
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 1, 3, 0, 3, 1, 0, 5, 3, 0, 2, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 1, 3, 0, 3, 0, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
@@ -345,34 +345,34 @@ function dibujarCelda(ctx, val, c, r, size) {
 }
 
 
-function dibujarFrame(now) {
-    const dt = (now - lastMoment) / 500;
-    lastMoment = now;
+// function dibujarFrame(now) {
+//     const dt = (now - lastMoment) / 500;
+//     lastMoment = now;
 
-    //  animación de la boca
-    mouthPulse += dt * 8; // velocidad
+//     //  animación de la boca
+//     mouthPulse += dt * 8; // velocidad
 
-    // limpiar todo el canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     // limpiar todo el canvas
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Recorrer la matriz y dibujar cada celda
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const val = MAPA[r][c];
-            dibujarCelda(ctx, val, c, r, TILE_SIZE);
-        }
-    }
+//     // Recorrer la matriz y dibujar cada celda
+//     for (let r = 0; r < ROWS; r++) {
+//         for (let c = 0; c < COLS; c++) {
+//             const val = MAPA[r][c];
+//             dibujarCelda(ctx, val, c, r, TILE_SIZE);
+//         }
+//     }
 
-    requestAnimationFrame(dibujarFrame);
-}
+//     requestAnimationFrame(dibujarFrame);
+// }
 
-// Empezar animación
-requestAnimationFrame(dibujarFrame);
+// // Empezar animación
+// requestAnimationFrame(dibujarFrame);
 
 
 
 let pacman = { r: 1, c: 1, dir: 'right', nextDir: 'right' };
-let speed = 5; // tiles por segundo
+let speed = 2; // celdas por segundo
 let pacmanX = pacman.c * TILE_SIZE;
 let pacmanY = pacman.r * TILE_SIZE;
 
@@ -390,63 +390,98 @@ document.addEventListener('keydown', (e) => {
 
 function puedeMover(r, c) {
     if (r < 0 || c < 0 || r >= ROWS || c >= COLS) return false; // fuera del mapa
-    return MAPA[r][c] !== 1; // 1 = pared
+    return MAPA[r][c] !== 0; // 0 = pared
 }
 
 function moverPacman(dt) {
-    const vel = speed * dt * 60; // ajusta velocidad según delta time
+    const vel = speed * dt * 2; // ajusta velocidad según delta time
 
     // Dirección tentativa según teclado
-    let targetR = pacman.r;
-    let targetC = pacman.c;
+    let nextR = pacman.r;
+    let nextC = pacman.c;
 
     switch (pacman.nextDir) {
-        case 'up':    targetR = pacman.r - 1; break;
-        case 'down':  targetR = pacman.r + 1; break;
-        case 'left':  targetC = pacman.c - 1; break;
-        case 'right': targetC = pacman.c + 1; break;
+        case 'up': nextR = pacman.r - 1; break;
+        case 'down': nextR = pacman.r + 1; break;
+        case 'left': nextC = pacman.c - 1; break;
+        case 'right': nextC = pacman.c + 1; break;
     }
 
     // Si puede cambiar de dirección (no hay pared)
-    if (puedeMover(targetR, targetC)) {
+    if (puedeMover(nextR, nextC)) {
         pacman.dir = pacman.nextDir;
     }
-
-    // Calcula movimiento según dirección actual
-    let dx = 0, dy = 0;
+    // Mover en la dirección actual
     switch (pacman.dir) {
-        case 'up': dy = -vel; break;
-        case 'down': dy = vel; break;
-        case 'left': dx = -vel; break;
-        case 'right': dx = vel; break;
+        case 'up':
+            pacmanY -= vel * TILE_SIZE;
+            if (pacmanY < pacman.r * TILE_SIZE) {
+                const targetR = pacman.r - 1;
+                if (puedeMover(targetR, pacman.c)) {
+                    pacman.r = targetR;
+                    pacmanY = pacman.r * TILE_SIZE;
+                } else {
+                    pacmanY = pacman.r * TILE_SIZE;
+                }
+            }
+            break;
+        case 'down':
+            pacmanY += vel * TILE_SIZE;
+            if (pacmanY > pacman.r * TILE_SIZE) {
+                const targetR = pacman.r + 1;
+                if (puedeMover(targetR, pacman.c)) {
+                    pacman.r = targetR;
+                    pacmanY = pacman.r * TILE_SIZE;
+                } else {
+                    pacmanY = pacman.r * TILE_SIZE;
+                }
+            }
+            break;
+        case 'left':
+            pacmanX -= vel * TILE_SIZE;
+            if (pacmanX < pacman.c * TILE_SIZE) {
+                const targetC = pacman.c - 1;
+                if (puedeMover(pacman.r, targetC)) {
+                    pacman.c = targetC;
+                    pacmanX = pacman.c * TILE_SIZE;
+                } else {
+                    pacmanX = pacman.c * TILE_SIZE;
+                }
+            }
+            break;
+        case 'right':
+
+            pacmanX += vel * TILE_SIZE;
+            if (pacmanX > pacman.c * TILE_SIZE) {
+                const targetC = pacman.c + 1;
+                if (puedeMover(pacman.r, targetC)) {
+                    pacman.c = targetC;
+                    pacmanX = pacman.c * TILE_SIZE;
+                } else {
+                    pacmanX = pacman.c * TILE_SIZE;
+                }
+            }
+            break;
     }
 
-    // Nueva posición tentativa
-    const newX = pacmanX + dx;
-    const newY = pacmanY + dy;
-
-    // Celdas correspondientes a la nueva posición
-    const newC = Math.floor(newX / TILE_SIZE);
-    const newR = Math.floor(newY / TILE_SIZE);
-
-    // Verifica colisión antes de mover
-    if (puedeMover(newR, newC)) {
-        pacmanX = newX;
-        pacmanY = newY;
-        pacman.c = newC;
-        pacman.r = newR;
-    }
 }
 
+
+
 function dibujarFrame(now) {
-    const dt = (now - lastMoment) / 1000; // segundos
+    const dt = (now - lastMoment) / 1000; // diferencia en tiempo  en segundos
     lastMoment = now;
 
     // animación
-    mouthPulse += dt * 8;
+    mouthPulse += (mouthPulse + 1) % 90;
+    console.log('dt:', dt.toFixed(3));
 
-    // mover personaje
+    // mover pacman
     moverPacman(dt);
+    console.log(`Pacman pos: r=${pacman.r}, c=${pacman.c}`);
+    console.log(`Pacman pixel: x=${pacmanX.toFixed(1)}, y=${pacmanY.toFixed(1)}`);
+    console.log(`Pacman dir: ${pacman.dir}, nextDir: ${pacman.nextDir}`);
+    console.log('---');
 
     // limpiar
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -460,10 +495,11 @@ function dibujarFrame(now) {
     }
 
     // dibujar Pac-Man
-    dibujarPacman(ctx, pacmanX, pacmanY, TILE_SIZE, mouthPulse, pacman.dir);
+    dibujarPacman(ctx, pacmanX, pacmanY, TILE_SIZE, pacman.dir, mouthPulse);
 
     requestAnimationFrame(dibujarFrame);
 }
+
 
 
 function dibujarPacmanv2(ctx, x, y, size, t, dir) {
@@ -475,9 +511,9 @@ function dibujarPacmanv2(ctx, x, y, size, t, dir) {
     let start = 0, end = 0;
     switch (dir) {
         case 'right': start = mouth; end = 2 * Math.PI - mouth; break;
-        case 'left':  start = Math.PI + mouth; end = Math.PI - mouth; break;
-        case 'up':    start = 1.5 * Math.PI + mouth; end = 1.5 * Math.PI - mouth; break;
-        case 'down':  start = 0.5 * Math.PI + mouth; end = 0.5 * Math.PI - mouth; break;
+        case 'left': start = Math.PI + mouth; end = Math.PI - mouth; break;
+        case 'up': start = 1.5 * Math.PI + mouth; end = 1.5 * Math.PI - mouth; break;
+        case 'down': start = 0.5 * Math.PI + mouth; end = 0.5 * Math.PI - mouth; break;
     }
 
     ctx.fillStyle = 'yellow';
@@ -487,3 +523,82 @@ function dibujarPacmanv2(ctx, x, y, size, t, dir) {
     ctx.closePath();
     ctx.fill();
 }
+
+function dibujarPacman(ctx, cx, cy, size, direction = 'right', open = 0.2) {
+    //const cx = c * size + size / 2
+    //const cy = r * size + size / 2
+    console.log('dibujarPacman:', cx, cy, size, direction, open);
+    cx += size / 2
+    cy += size / 2
+
+    const radius = Math.max(6, size * 0.40)
+
+
+    const mouth = 0.2 + Math.abs(Math.sin(open))  // ángulo de apertura
+
+    //  ángulos de la boca según dirección
+    let start = 0,
+        end = Math.PI * 2
+    switch (direction) {
+        case 'right':
+            start = mouth / 2
+            end = Math.PI * 2 - mouth / 2
+            break
+        case 'left':
+            start = Math.PI + mouth / 2
+            end = Math.PI - mouth / 2
+            break
+        case 'up':
+            start = -Math.PI / 2 + mouth / 2
+            end = -Math.PI / 2 - mouth / 2 + Math.PI * 2
+            break
+        case 'down':
+            start = Math.PI / 2 + mouth / 2
+            end = Math.PI / 2 - mouth / 2 + Math.PI * 2
+            break
+    }
+
+    ctx.save()
+    // cuerpo del pacman    
+    ctx.beginPath()
+    ctx.fillStyle = '#ffd700'
+    ctx.moveTo(cx, cy)
+    ctx.arc(cx, cy, radius, start, end, false)
+    ctx.closePath()
+    ctx.fill()
+
+    // ojo 
+    ctx.beginPath()
+    ctx.fillStyle = '#000'
+    let ex = cx,
+        ey = cy;
+
+    // ajustamos posición ojo según dirección
+    if (direction === 'right') {
+        ex += radius * 0.25
+        ey -= radius * 0.45
+    }
+    if (direction === 'left') {
+        ex -= radius * 0.25
+        ey -= radius * 0.45
+    }
+    if (direction === 'up') {
+        ey -= 0
+        ex -= radius * 0.5
+    }
+    if (direction === 'down') {
+        ey -= 0
+        ex += radius * 0.5
+    }
+
+    //ojo pacman
+    ctx.arc(ex, ey, Math.max(2, size * 0.03), 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.restore()
+}
+
+
+requestAnimationFrame(dibujarFrame);
+
+
