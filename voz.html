@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texto a Voz con JavaScript</title>
+</head>
+
+<body>
+    <h1>Convierte Texto a Voz</h1>
+    <textarea id="texto" rows="10" cols="50" placeholder="Escribe algo aquí..."></textarea><br>
+    <button id="leer">Leer Texto</button>
+
+    <script>
+        // Seleccionamos los elementos del DOM
+        const botonLeer = document.getElementById('leer');
+        const areaTexto = document.getElementById('texto');
+
+        // Evento que se dispara al hacer clic en el botón
+        botonLeer.addEventListener('click', () => {
+            const texto = areaTexto.value; // Obtenemos el texto del textarea
+            if (texto.trim() !== '') {
+                const utterance = new SpeechSynthesisUtterance(texto); // Creamos una instancia de SpeechSynthesisUtterance
+                utterance.lang = 'es-ES'; // Configuramos el idioma (español de España)
+                speechSynthesis.speak(utterance); // Iniciamos la lectura del texto
+            } else {
+                alert('Por favor, escribe algún texto para convertirlo en voz.');
+            }
+        });
+
+    </script>
+</body>
+
+</html>

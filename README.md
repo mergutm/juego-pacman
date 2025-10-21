@@ -626,6 +626,30 @@ requestAnimationFrame(dibujarFrame);
 
 
 
+![alt text](imgs/pantalla02.png) 
+
+# Ajustes al MAPA
+
+* Borrar todos los fantasmas
+* Borrar el pacman
+
+## Declarar un objeto llamado pacman que controlará 
+
+```Javascript
+
+// posicion inicial del pacman y datos de posición y dirección
+
+let pacman = {
+    r: 1, c: 1,
+    pacmanX: 1, pacmanY: 1,
+    dir: 'left'
+};
+
+// posicion donde se dibujará el pacman
+MAPA[pacman.r][pacman.c] = 1;
+```
+
+
 # Control de la dirección del pacman
 
 * `pacmanDir` es una variable global.
@@ -636,13 +660,240 @@ requestAnimationFrame(dibujarFrame);
 
 window.addEventListener('keydown', (e) => {
     const key = e.key;
-    if (key === 'ArrowLeft') pacmanDir = 'left';
-    if (key === 'ArrowRight') pacmanDir = 'right';
-    if (key === 'ArrowUp') pacmanDir = 'up';
-    if (key === 'ArrowDown') pacmanDir = 'down';
+    if (key === 'ArrowLeft') pacman.dir = 'left';
+    if (key === 'ArrowRight') pacman.dir = 'right';
+    if (key === 'ArrowUp') pacman.dir = 'up';
+    if (key === 'ArrowDown') pacman.dir = 'down';
 });
 ```
 
 
-![alt text](imgs/pantalla02.png) 
 
+## Cálculo de la siguiente posición del pacman
+
+```JavaScript
+function nexPosIsAvailable(pacman) {
+
+    //el objeto pacman está disponible 
+    const dir = pacman.dir;
+    nextC = pacman.c;
+    nextR = pacman.r;
+
+    //dependiendo de la dirección se calcula la siguiente posible posición
+    switch (dir) {
+        case 'left':
+            nextC -= 1;
+            break;
+        case 'right':
+            nextC += 1;
+            break;
+        case 'up':
+            nextR -= 1;
+            break;
+        case 'down':
+            nextR += 1;
+            break;
+    }
+
+    // validación de que no pueda salir del área 
+    if (nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
+        return {
+            'isAvailable': false, // fuera del mapa
+            'r': r, // no se debe mover
+            'c': c
+        };
+    return {
+        'isAvailable': MAPA[nextR][nextC] !== 0, // fuera del mapa
+        'r': nextR, // siguiente posición
+        'c': nextC
+    }; //0  es pared
+
+}
+```
+
+## Con estos nuevos cambios, ahora es posible controlar el movimiento del pacman en cada frame.
+
+### Actualización de dibujarFrame
+
+```Javascript
+
+function dibujarFrame(now) {
+
+    // cuántos segundos transcurridos
+    const dseg = (now - lastMoment) / 1000.0;
+
+    if (dseg > 1 / velocidadAnimacion) {
+        lastAnimation = (lastAnimation + 1) % 3;
+        lastMoment = now;
+        //console.log('Tiempo', now);
+        mouthPulse += 0.25 * Math.PI;
+
+        // limpiar todo el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Recorrer la matriz y dibujar cada celda
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const val = MAPA[r][c];
+                dibujarCelda(ctx, val, c, r, TILE_SIZE);
+            }
+        }
+
+        console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
+
+        if (lastAnimation == 0) {
+            // mover pacman si la siguiente posición está disponible
+            const res = nexPosIsAvailable(pacman);
+            console.log("available", res);
+
+            if (res.isAvailable) {
+                // borrar pacman de la posición actual
+                MAPA[pacman.r][pacman.c] = 6; // pasillo    
+                // actualizar posición
+                pacman.c = res.c;
+                pacman.r = res.r;
+                MAPA[pacman.r][pacman.c] = 1; // pasillo    
+            }
+        }
+
+    }
+
+
+    requestAnimationFrame(dibujarFrame);
+}
+```
+
+# Fantasmas con movimientos aleatorios
+
+## Declarar arreglo de fantasmas
+
+* Convertir todas las posiciones donde había fantasmas en pastillas (1)
+
+```Javascript
+
+const fantasmas = [
+    { 'c': 3, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
+    { 'c': 7, 'r': 3, 'color': '#73C8D2', 'dir': 'right' },
+    { 'c': 11, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
+    { 'c': 13, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
+    { 'c': 16, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
+    { 'c': 16, 'r': 7, 'color': '#73C8D2', 'dir': 'right' },
+    { 'c': 3, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
+    { 'c': 7, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
+    { 'c': 11, 'r': 12, 'color': '#4FB7B3', 'dir': 'right' },
+    { 'c': 13, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
+    { 'c': 16, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
+    { 'c': 16, 'r': 16, 'color': '#0046FF', 'dir': 'right' }
+]
+```
+
+## Modificar dibujarFrame - agregar la lógica para mover a los fantasmas
+
+```Javascript
+function dibujarFrame(now) {
+    // cuántos segundos transcurridos desde el frame anterior
+    const dseg = (now - lastMoment) / 1000.0;
+
+    // Dependiendo de la velocidad de animación se muestra un nuevo frame
+    if (dseg > 1 / velocidadAnimacion) {
+        //contador de animacion
+        lastAnimation = (lastAnimation + 1) % 4;
+
+        //nuevo 'ultimo momento'
+        lastMoment = now;
+        //console.log('Tiempo', now);
+        //animación de la boca de pacman
+        mouthPulse += 0.25 * Math.PI;
+
+        // limpiar todo el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Recorrer la matriz y dibujar cada celda
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const val = MAPA[r][c];
+                dibujarCelda(ctx, val, c, r, TILE_SIZE);
+            }
+        }
+
+        
+        // lastAnimation controla cada cuantos frames se puede mover el pacman  
+        // para dar tiempo de moverse en el mapa      
+        if (lastAnimation == 0) {
+            // mover pacman si la siguiente posición está disponible
+            const res = nexPosIsAvailable(pacman);            
+
+            if (res.isAvailable) {
+                // borrar pacman de la posición actual
+                MAPA[pacman.r][pacman.c] = 6; // pasillo    
+                // actualizar posición
+                pacman.c = res.c;
+                pacman.r = res.r;
+                MAPA[pacman.r][pacman.c] = 1; // pasillo    
+
+                console.log("available", res);
+            }
+        }
+        // mover los fantasmas
+
+        fantasmas.forEach((f, index) => {
+
+            if (lastAnimation % 2 == 0) {
+                const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
+                switch (dirF) {
+                    case 0: fantasmas[index].dir = 'up'; break;
+                    case 1: fantasmas[index].dir = 'right'; break;
+                    case 2: fantasmas[index].dir = 'down'; break;
+                    case 3: fantasmas[index].dir = 'left'; break;
+                }
+                const res = nexPosIsAvailable(f);                
+
+                if (res.isAvailable) {
+                    // actualizar posición
+                    f.c = res.c;
+                    f.r = res.r;
+                    console.log(`fantasma ${index} `, f);
+
+                }
+            }
+
+            dibujarFantasma(ctx, f.c, f.r, TILE_SIZE, f.color);
+
+        });
+
+
+    }
+
+
+    requestAnimationFrame(dibujarFrame);
+}
+```
+
+
+
+```Javascript
+```
+
+```Javascript
+```
+
+
+
+```Javascript
+```
+
+```Javascript
+```
+
+
+
+```Javascript
+```
+
+```Javascript
+```
+
+
+
+```Javascript
+```

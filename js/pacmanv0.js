@@ -11,20 +11,20 @@ const MAPA = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 4, 0, 3, 0, 3, 0, 3, 3, 0, 3, 3, 0, 3, 3, 0, 3, 0, 4, 0],
+    [0, 4, 0, 2, 0, 3, 0, 2, 3, 0, 3, 2, 0, 2, 3, 0, 2, 0, 4, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 0, 3, 0, 3, 0, 0, 5, 3, 0, 3, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 0, 3, 0, 3, 0, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 4, 0, 3, 0, 3, 0, 3, 3, 0, 3, 3, 0, 3, 3, 0, 3, 0, 4, 0],
+    [0, 4, 0, 2, 0, 3, 0, 2, 3, 0, 3, 2, 0, 2, 3, 0, 2, 0, 4, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 3, 3, 0, 3, 3, 0, 5, 3, 0, 3, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 6, 3, 0, 3, 6, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -250,7 +250,7 @@ function dibujarFantasma(ctx, c, r, size, color = '#ff4050') {
 
     // ondas 
     const scallopR = w * 0.08
-    let sx = x + w * 0.1 + lastAnimation
+    let sx = x + w * 0.1
     for (let i = 0; i < 5; i++) {
         ctx.arc(sx + scallopR, y + h * 0.6, scallopR, Math.PI, 0, true)
         sx += scallopR * 2
@@ -285,8 +285,8 @@ function dibujarFantasma(ctx, c, r, size, color = '#ff4050') {
     //iris
     ctx.beginPath()
     ctx.fillStyle = '#000'
-    ctx.arc(cx - w * 0.16 + lastAnimation, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
-    ctx.arc(cx + w * 0.11 + lastAnimation, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
+    ctx.arc(cx - w * 0.16, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
+    ctx.arc(cx + w * 0.11, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
     ctx.fill()
 
     ctx.restore()
@@ -302,8 +302,8 @@ let pacmanDir = 'right'; // 'left','right','up','down'
 let mouthOpen = 0.2; // fracción de PI para abrir la boca
 let mouthPulse = 0; // dirección de apertura/cierre de la boca
 let lastMoment = performance.now();
-let lastAnimation = 0;
-let velocidadAnimacion = 4; // frames por segundo
+let lastAnimation = 0; //controlar el movimiento del pacman
+let velocidadAnimacion = 6; // frames por segundo
 
 
 function dibujarCelda(ctx, val, c, r, size) {
@@ -326,8 +326,8 @@ function dibujarCelda(ctx, val, c, r, size) {
                 0.2 + Math.abs(Math.sin(mouthPulse)) * 0.25);
             break;
         case 2: // fantasma
-            //console.log("fantasma", c, r);
-            //dibujarFantasma(ctx, c, r, size, '#ff5a7a');
+            dibujarPunto(ctx, c, r, size);
+            dibujarFantasma(ctx, c, r, size, '#ff5a7a');
             break;
         case 3: // dot
             dibujarPunto(ctx, c, r, size);
@@ -372,19 +372,11 @@ function dibujarFramev0(now) {
 
 
 function dibujarFrame(now) {
-
-    // cuántos segundos transcurridos desde el frame anterior
     const dseg = (now - lastMoment) / 1000.0;
 
-    // Dependiendo de la velocidad de animación se muestra un nuevo frame
     if (dseg > 1 / velocidadAnimacion) {
-        //contador de animacion
-        lastAnimation = (lastAnimation + 1) % 4;
-
-        //nuevo 'ultimo momento'
         lastMoment = now;
-        //console.log('Tiempo', now);
-        //animación de la boca de pacman
+        console.log('Tiempo', now);
         mouthPulse += 0.25 * Math.PI;
 
         // limpiar todo el canvas
@@ -397,54 +389,6 @@ function dibujarFrame(now) {
                 dibujarCelda(ctx, val, c, r, TILE_SIZE);
             }
         }
-
-        //console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
-
-        // lastAnimation controla cada cuantos frames se puede mover el pacman  
-        // para dar tiempo de moverse en el mapa      
-        if (lastAnimation == 0) {
-            // mover pacman si la siguiente posición está disponible
-            const res = nexPosIsAvailable(pacman);
-            //console.log("available", res);
-
-            if (res.isAvailable) {
-                // borrar pacman de la posición actual
-                MAPA[pacman.r][pacman.c] = 6; // pasillo    
-                // actualizar posición
-                pacman.c = res.c;
-                pacman.r = res.r;
-                MAPA[pacman.r][pacman.c] = 1; // pasillo    
-
-                console.log("available", res);
-            }
-        }
-        // mover los fantasmas
-
-        fantasmas.forEach((f, index) => {
-
-            if (lastAnimation % 2 == 0) {
-                const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
-                switch (dirF) {
-                    case 0: fantasmas[index].dir = 'up'; break;
-                    case 1: fantasmas[index].dir = 'right'; break;
-                    case 2: fantasmas[index].dir = 'down'; break;
-                    case 3: fantasmas[index].dir = 'left'; break;
-                }
-                const res = nexPosIsAvailable(f);
-                //console.log("available", res);
-
-                if (res.isAvailable) {
-                    // actualizar posición
-                    f.c = res.c;
-                    f.r = res.r;
-                    console.log(`fantasma ${index} `, f);
-
-                }
-            }
-
-            dibujarFantasma(ctx, f.c, f.r, TILE_SIZE, f.color);
-
-        });
 
 
     }
@@ -465,8 +409,6 @@ window.addEventListener('keydown', (e) => {
     if (key === 'ArrowRight') pacman.dir = 'right';
     if (key === 'ArrowUp') pacman.dir = 'up';
     if (key === 'ArrowDown') pacman.dir = 'down';
-    console.log('Nueva dirección:', pacman);
-
 });
 
 
@@ -474,76 +416,16 @@ window.addEventListener('keydown', (e) => {
 
 let pacman = {
     r: 1, c: 1,
-    dir: 'left'
+    pacmanX: 1, pacmanY: 1,
+    dir: 'left', nextDir: 'right'
 };
 
 // posicion donde se dibujará el pacman
-//pacman.pacmanX = pacman.c * TILE_SIZE;
-//pacman.pacmanY = pacman.r * TILE_SIZE;
+pacman.pacmanX = pacman.c * TILE_SIZE;
+pacman.pacmanY = pacman.r * TILE_SIZE;
 MAPA[pacman.r][pacman.c] = 1;
 
-function nexPosIsAvailable(pacman) {
+function isAvailable() {
 
-    //el objeto pacman está disponible 
-    const dir = pacman.dir;
-    nextC = pacman.c;
-    nextR = pacman.r;
-
-    //dependiendo de la dirección se calcula la siguiente posible posición
-    switch (dir) {
-        case 'left':
-            nextC -= 1;
-            break;
-        case 'right':
-            nextC += 1;
-            break;
-        case 'up':
-            nextR -= 1;
-            break;
-        case 'down':
-            nextR += 1;
-            break;
-    }
-
-    // validación de que no pueda salir del área 
-    if (nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
-        return {
-            'isAvailable': false, // fuera del mapa
-            'r': r, // no se debe mover
-            'c': c
-        };
-    return {
-        'isAvailable': MAPA[nextR][nextC] !== 0, // fuera del mapa
-        'r': nextR, // siguiente posición
-        'c': nextC
-    }; //0  es pared
 
 }
-
-const fantasmas = [
-    { 'c': 3, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 7, 'r': 3, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 11, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 13, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 16, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 16, 'r': 7, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 3, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 7, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
-    { 'c': 11, 'r': 12, 'color': '#4FB7B3', 'dir': 'right' },
-    { 'c': 13, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
-    { 'c': 16, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 16, 'r': 16, 'color': '#0046FF', 'dir': 'right' }
-]
-
-
-
-
-
-
-
-
-
-
-
-
-

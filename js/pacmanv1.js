@@ -11,20 +11,20 @@ const MAPA = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 4, 0, 3, 0, 3, 0, 3, 3, 0, 3, 3, 0, 3, 3, 0, 3, 0, 4, 0],
+    [0, 4, 0, 2, 0, 3, 0, 2, 3, 0, 3, 2, 0, 2, 3, 0, 2, 0, 4, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 0, 3, 0, 3, 0, 0, 5, 3, 0, 3, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 0, 3, 0, 3, 0, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 4, 0, 3, 0, 3, 0, 3, 3, 0, 3, 3, 0, 3, 3, 0, 3, 0, 4, 0],
+    [0, 4, 0, 2, 0, 3, 0, 2, 3, 0, 3, 2, 0, 2, 3, 0, 2, 0, 4, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 3, 3, 0, 3, 3, 0, 5, 3, 0, 3, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 6, 3, 0, 3, 6, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -250,7 +250,7 @@ function dibujarFantasma(ctx, c, r, size, color = '#ff4050') {
 
     // ondas 
     const scallopR = w * 0.08
-    let sx = x + w * 0.1 + lastAnimation
+    let sx = x + w * 0.1
     for (let i = 0; i < 5; i++) {
         ctx.arc(sx + scallopR, y + h * 0.6, scallopR, Math.PI, 0, true)
         sx += scallopR * 2
@@ -285,8 +285,8 @@ function dibujarFantasma(ctx, c, r, size, color = '#ff4050') {
     //iris
     ctx.beginPath()
     ctx.fillStyle = '#000'
-    ctx.arc(cx - w * 0.16 + lastAnimation, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
-    ctx.arc(cx + w * 0.11 + lastAnimation, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
+    ctx.arc(cx - w * 0.16, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
+    ctx.arc(cx + w * 0.11, y + h * 0.35, w * 0.05, 0, Math.PI * 2)
     ctx.fill()
 
     ctx.restore()
@@ -326,8 +326,8 @@ function dibujarCelda(ctx, val, c, r, size) {
                 0.2 + Math.abs(Math.sin(mouthPulse)) * 0.25);
             break;
         case 2: // fantasma
-            //console.log("fantasma", c, r);
-            //dibujarFantasma(ctx, c, r, size, '#ff5a7a');
+            dibujarPunto(ctx, c, r, size);
+            dibujarFantasma(ctx, c, r, size, '#ff5a7a');
             break;
         case 3: // dot
             dibujarPunto(ctx, c, r, size);
@@ -379,7 +379,7 @@ function dibujarFrame(now) {
     // Dependiendo de la velocidad de animación se muestra un nuevo frame
     if (dseg > 1 / velocidadAnimacion) {
         //contador de animacion
-        lastAnimation = (lastAnimation + 1) % 4;
+        lastAnimation = (lastAnimation + 1) % 3;
 
         //nuevo 'ultimo momento'
         lastMoment = now;
@@ -398,13 +398,13 @@ function dibujarFrame(now) {
             }
         }
 
-        //console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
+        console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
 
         // lastAnimation controla cada cuantos frames se puede mover el pacman  
         // para dar tiempo de moverse en el mapa      
         if (lastAnimation == 0) {
             // mover pacman si la siguiente posición está disponible
-            const res = nexPosIsAvailable(pacman);
+            const res = nexPosIsAvailable();
             //console.log("available", res);
 
             if (res.isAvailable) {
@@ -418,34 +418,6 @@ function dibujarFrame(now) {
                 console.log("available", res);
             }
         }
-        // mover los fantasmas
-
-        fantasmas.forEach((f, index) => {
-
-            if (lastAnimation % 2 == 0) {
-                const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
-                switch (dirF) {
-                    case 0: fantasmas[index].dir = 'up'; break;
-                    case 1: fantasmas[index].dir = 'right'; break;
-                    case 2: fantasmas[index].dir = 'down'; break;
-                    case 3: fantasmas[index].dir = 'left'; break;
-                }
-                const res = nexPosIsAvailable(f);
-                //console.log("available", res);
-
-                if (res.isAvailable) {
-                    // actualizar posición
-                    f.c = res.c;
-                    f.r = res.r;
-                    console.log(`fantasma ${index} `, f);
-
-                }
-            }
-
-            dibujarFantasma(ctx, f.c, f.r, TILE_SIZE, f.color);
-
-        });
-
 
     }
 
@@ -474,6 +446,7 @@ window.addEventListener('keydown', (e) => {
 
 let pacman = {
     r: 1, c: 1,
+    pacmanX: 1, pacmanY: 1,
     dir: 'left'
 };
 
@@ -482,7 +455,7 @@ let pacman = {
 //pacman.pacmanY = pacman.r * TILE_SIZE;
 MAPA[pacman.r][pacman.c] = 1;
 
-function nexPosIsAvailable(pacman) {
+function nexPosIsAvailable() {
 
     //el objeto pacman está disponible 
     const dir = pacman.dir;
@@ -519,31 +492,6 @@ function nexPosIsAvailable(pacman) {
     }; //0  es pared
 
 }
-
-const fantasmas = [
-    { 'c': 3, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 7, 'r': 3, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 11, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 13, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 16, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
-    { 'c': 16, 'r': 7, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 3, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 7, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
-    { 'c': 11, 'r': 12, 'color': '#4FB7B3', 'dir': 'right' },
-    { 'c': 13, 'r': 12, 'color': '#0046FF', 'dir': 'right' },
-    { 'c': 16, 'r': 12, 'color': '#73C8D2', 'dir': 'right' },
-    { 'c': 16, 'r': 16, 'color': '#0046FF', 'dir': 'right' }
-]
-
-
-
-
-
-
-
-
-
-
 
 
 
