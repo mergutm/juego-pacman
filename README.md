@@ -570,33 +570,44 @@ function dibujarCelda(ctx, val, c, r, size) {
 
 Inicializa una variable global para guardar el tiempo del último frame dibujado.
 
-```javascript
+
+## Agregar variables para controlar la animación 
+
+```Javascript
 let lastMoment = performance.now();
+let lastAnimation = 0;
+let velocidadAnimacion = 4; // frames por segundo
 ```
 
-
-
 ```javascript
+
+
 function dibujarFrame(now) {
-    const dt = (now - lastMoment) / 500;
-    lastMoment = now;
+    const dseg = (now - lastMoment) / 1000.0;
 
-    //  animación de la boca
-    mouthPulse += dt * 8; // velocidad
+    if (dseg > 1 / velocidadAnimacion) {
+        lastMoment = now;
+        console.log('Tiempo', now);
+        mouthPulse += 0.25 * Math.PI;
 
-    // limpiar todo el canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // limpiar todo el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Recorrer la matriz y dibujar cada celda
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const val = MAPA[r][c];
-            dibujarCelda(ctx, val, c, r, TILE_SIZE);
+        // Recorrer la matriz y dibujar cada celda
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const val = MAPA[r][c];
+                dibujarCelda(ctx, val, c, r, TILE_SIZE);
+            }
         }
+
     }
+
 
     requestAnimationFrame(dibujarFrame);
 }
+// Empezar animación
+requestAnimationFrame(dibujarFrame);
 ```
 
 * `now` - lastMoment da el tiempo transcurrido (en milisegundos) desde el último frame.
@@ -634,3 +645,4 @@ window.addEventListener('keydown', (e) => {
 
 
 ![alt text](imgs/pantalla02.png) 
+

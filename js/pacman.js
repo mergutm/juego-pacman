@@ -15,7 +15,7 @@ const MAPA = [
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 3, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0],
-    [0, 3, 0, 5, 0, 3, 0, 1, 3, 0, 3, 0, 0, 5, 3, 0, 2, 0, 3, 0],
+    [0, 3, 0, 5, 0, 3, 0, 1, 3, 0, 3, 1, 0, 5, 3, 0, 2, 0, 3, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
     [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0],
@@ -302,6 +302,9 @@ let pacmanDir = 'right'; // 'left','right','up','down'
 let mouthOpen = 0.2; // fracción de PI para abrir la boca
 let mouthPulse = 0; // dirección de apertura/cierre de la boca
 let lastMoment = performance.now();
+let lastAnimation = 0;
+let velocidadAnimacion = 4; // frames por segundo
+
 
 function dibujarCelda(ctx, val, c, r, size) {
     // Primero limpiamos el fondo del tile (pasillo)
@@ -345,148 +348,17 @@ function dibujarCelda(ctx, val, c, r, size) {
 }
 
 
-// function dibujarFrame(now) {
-//     const dt = (now - lastMoment) / 500;
-//     lastMoment = now;
-
-//     //  animación de la boca
-//     mouthPulse += dt * 8; // velocidad
-
-//     // limpiar todo el canvas
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//     // Recorrer la matriz y dibujar cada celda
-//     for (let r = 0; r < ROWS; r++) {
-//         for (let c = 0; c < COLS; c++) {
-//             const val = MAPA[r][c];
-//             dibujarCelda(ctx, val, c, r, TILE_SIZE);
-//         }
-//     }
-
-//     requestAnimationFrame(dibujarFrame);
-// }
-
-// // Empezar animación
-// requestAnimationFrame(dibujarFrame);
-
-
-
-let pacman = { r: 1, c: 1, dir: 'right', nextDir: 'right' };
-let speed = 2; // celdas por segundo
-let pacmanX = pacman.c * TILE_SIZE;
-let pacmanY = pacman.r * TILE_SIZE;
-
-
-document.addEventListener('keydown', (e) => {
-    switch (e.key) {
-        case 'ArrowUp': pacman.nextDir = 'up'; break;
-        case 'ArrowDown': pacman.nextDir = 'down'; break;
-        case 'ArrowLeft': pacman.nextDir = 'left'; break;
-        case 'ArrowRight': pacman.nextDir = 'right'; break;
-    }
-    console.log('nextDir:', pacman.nextDir);
-});
-
-
-function puedeMover(r, c) {
-    if (r < 0 || c < 0 || r >= ROWS || c >= COLS) return false; // fuera del mapa
-    return MAPA[r][c] !== 0; // 0 = pared
-}
-
-function moverPacman(dt) {
-    const vel = speed * dt * 2; // ajusta velocidad según delta time
-
-    // Dirección tentativa según teclado
-    let nextR = pacman.r;
-    let nextC = pacman.c;
-
-    switch (pacman.nextDir) {
-        case 'up': nextR = pacman.r - 1; break;
-        case 'down': nextR = pacman.r + 1; break;
-        case 'left': nextC = pacman.c - 1; break;
-        case 'right': nextC = pacman.c + 1; break;
-    }
-
-    // Si puede cambiar de dirección (no hay pared)
-    if (puedeMover(nextR, nextC)) {
-        pacman.dir = pacman.nextDir;
-    }
-    // Mover en la dirección actual
-    switch (pacman.dir) {
-        case 'up':
-            pacmanY -= vel * TILE_SIZE;
-            if (pacmanY < pacman.r * TILE_SIZE) {
-                const targetR = pacman.r - 1;
-                if (puedeMover(targetR, pacman.c)) {
-                    pacman.r = targetR;
-                    pacmanY = pacman.r * TILE_SIZE;
-                } else {
-                    pacmanY = pacman.r * TILE_SIZE;
-                }
-            }
-            break;
-        case 'down':
-            pacmanY += vel * TILE_SIZE;
-            if (pacmanY > pacman.r * TILE_SIZE) {
-                const targetR = pacman.r + 1;
-                if (puedeMover(targetR, pacman.c)) {
-                    pacman.r = targetR;
-                    pacmanY = pacman.r * TILE_SIZE;
-                } else {
-                    pacmanY = pacman.r * TILE_SIZE;
-                }
-            }
-            break;
-        case 'left':
-            pacmanX -= vel * TILE_SIZE;
-            if (pacmanX < pacman.c * TILE_SIZE) {
-                const targetC = pacman.c - 1;
-                if (puedeMover(pacman.r, targetC)) {
-                    pacman.c = targetC;
-                    pacmanX = pacman.c * TILE_SIZE;
-                } else {
-                    pacmanX = pacman.c * TILE_SIZE;
-                }
-            }
-            break;
-        case 'right':
-
-            pacmanX += vel * TILE_SIZE;
-            if (pacmanX > pacman.c * TILE_SIZE) {
-                const targetC = pacman.c + 1;
-                if (puedeMover(pacman.r, targetC)) {
-                    pacman.c = targetC;
-                    pacmanX = pacman.c * TILE_SIZE;
-                } else {
-                    pacmanX = pacman.c * TILE_SIZE;
-                }
-            }
-            break;
-    }
-
-}
-
-
-
-function dibujarFrame(now) {
-    const dt = (now - lastMoment) / 1000; // diferencia en tiempo  en segundos
+function dibujarFramev0(now) {
+    const dt = (now - lastMoment) / 500;
     lastMoment = now;
 
-    // animación
-    mouthPulse += (mouthPulse + 1) % 90;
-    console.log('dt:', dt.toFixed(3));
+    //  animación de la boca
+    mouthPulse += dt * 8; // velocidad
 
-    // mover pacman
-    moverPacman(dt);
-    console.log(`Pacman pos: r=${pacman.r}, c=${pacman.c}`);
-    console.log(`Pacman pixel: x=${pacmanX.toFixed(1)}, y=${pacmanY.toFixed(1)}`);
-    console.log(`Pacman dir: ${pacman.dir}, nextDir: ${pacman.nextDir}`);
-    console.log('---');
-
-    // limpiar
+    // limpiar todo el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // dibujar mapa
+    // Recorrer la matriz y dibujar cada celda
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             const val = MAPA[r][c];
@@ -494,111 +366,48 @@ function dibujarFrame(now) {
         }
     }
 
-    // dibujar Pac-Man
-    dibujarPacman(ctx, pacmanX, pacmanY, TILE_SIZE, pacman.dir, mouthPulse);
+    requestAnimationFrame(dibujarFramev0);
+}
+
+
+
+function dibujarFrame(now) {
+    const dseg = (now - lastMoment) / 1000.0;
+
+    if (dseg > 1 / velocidadAnimacion) {
+        lastMoment = now;
+        console.log('Tiempo', now);
+        mouthPulse += 0.25 * Math.PI;
+
+        // limpiar todo el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Recorrer la matriz y dibujar cada celda
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const val = MAPA[r][c];
+                dibujarCelda(ctx, val, c, r, TILE_SIZE);
+            }
+        }
+
+    }
+
 
     requestAnimationFrame(dibujarFrame);
 }
-
-
-
-function dibujarPacmanv2(ctx, x, y, size, t, dir) {
-    const radius = size / 2;
-    const mouth = Math.abs(Math.sin(t)) * 0.3 * Math.PI;
-    const cx = x + radius;
-    const cy = y + radius;
-
-    let start = 0, end = 0;
-    switch (dir) {
-        case 'right': start = mouth; end = 2 * Math.PI - mouth; break;
-        case 'left': start = Math.PI + mouth; end = Math.PI - mouth; break;
-        case 'up': start = 1.5 * Math.PI + mouth; end = 1.5 * Math.PI - mouth; break;
-        case 'down': start = 0.5 * Math.PI + mouth; end = 0.5 * Math.PI - mouth; break;
-    }
-
-    ctx.fillStyle = 'yellow';
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, radius, start, end, false);
-    ctx.closePath();
-    ctx.fill();
-}
-
-function dibujarPacman(ctx, cx, cy, size, direction = 'right', open = 0.2) {
-    //const cx = c * size + size / 2
-    //const cy = r * size + size / 2
-    console.log('dibujarPacman:', cx, cy, size, direction, open);
-    cx += size / 2
-    cy += size / 2
-
-    const radius = Math.max(6, size * 0.40)
-
-
-    const mouth = 0.2 + Math.abs(Math.sin(open))  // ángulo de apertura
-
-    //  ángulos de la boca según dirección
-    let start = 0,
-        end = Math.PI * 2
-    switch (direction) {
-        case 'right':
-            start = mouth / 2
-            end = Math.PI * 2 - mouth / 2
-            break
-        case 'left':
-            start = Math.PI + mouth / 2
-            end = Math.PI - mouth / 2
-            break
-        case 'up':
-            start = -Math.PI / 2 + mouth / 2
-            end = -Math.PI / 2 - mouth / 2 + Math.PI * 2
-            break
-        case 'down':
-            start = Math.PI / 2 + mouth / 2
-            end = Math.PI / 2 - mouth / 2 + Math.PI * 2
-            break
-    }
-
-    ctx.save()
-    // cuerpo del pacman    
-    ctx.beginPath()
-    ctx.fillStyle = '#ffd700'
-    ctx.moveTo(cx, cy)
-    ctx.arc(cx, cy, radius, start, end, false)
-    ctx.closePath()
-    ctx.fill()
-
-    // ojo 
-    ctx.beginPath()
-    ctx.fillStyle = '#000'
-    let ex = cx,
-        ey = cy;
-
-    // ajustamos posición ojo según dirección
-    if (direction === 'right') {
-        ex += radius * 0.25
-        ey -= radius * 0.45
-    }
-    if (direction === 'left') {
-        ex -= radius * 0.25
-        ey -= radius * 0.45
-    }
-    if (direction === 'up') {
-        ey -= 0
-        ex -= radius * 0.5
-    }
-    if (direction === 'down') {
-        ey -= 0
-        ex += radius * 0.5
-    }
-
-    //ojo pacman
-    ctx.arc(ex, ey, Math.max(2, size * 0.03), 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.restore()
-}
-
-
+// Empezar animación
 requestAnimationFrame(dibujarFrame);
+
+
+
+/// Controles de dirección del Pacman
+
+window.addEventListener('keydown', (e) => {
+    const key = e.key;
+    if (key === 'ArrowLeft') pacmanDir = 'left';
+    if (key === 'ArrowRight') pacmanDir = 'right';
+    if (key === 'ArrowUp') pacmanDir = 'up';
+    if (key === 'ArrowDown') pacmanDir = 'down';
+});
 
 
