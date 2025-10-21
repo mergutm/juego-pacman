@@ -915,7 +915,10 @@ function dibujarFrame(now) {
 # Pendientes
 
 
- 
+* Detección de colisión del pacman con fantasmas
+* Conteo de pastillas que va comiendo
+* Uso de PowerUps (potenciadores) 
+* Al comer frutas, potenciar / incrementar total de pastillas.
 
 
 ## Lógica para 
