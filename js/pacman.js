@@ -423,22 +423,50 @@ function dibujarFrame(now) {
         fantasmas.forEach((f, index) => {
 
             if (lastAnimation % 2 == 0) {
-                const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
-                switch (dirF) {
-                    case 0: fantasmas[index].dir = 'up'; break;
-                    case 1: fantasmas[index].dir = 'right'; break;
-                    case 2: fantasmas[index].dir = 'down'; break;
-                    case 3: fantasmas[index].dir = 'left'; break;
+
+                if (index > 4) {
+
+                    const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
+                    switch (dirF) {
+                        case 0: fantasmas[index].dir = 'up'; break;
+                        case 1: fantasmas[index].dir = 'right'; break;
+                        case 2: fantasmas[index].dir = 'down'; break;
+                        case 3: fantasmas[index].dir = 'left'; break;
+                    }
+                } else {
+                    // detectar dirección del pacman y dirigir el fantasma
+                    // pacman está a la izquierda
+                    console.log("pacman", pacman, "fantasma", f);
+                    console.log(`${Math.abs(pacman.c - f.c)} > ${Math.abs(pacman.r - f.r)}`);
+                    if (Math.abs(pacman.c - f.c) > Math.abs(pacman.r - f.r)) {
+                        // el pacman está a la izquierda
+                        console.log("columna", pacman.c < f.c);
+                        if (pacman.c < f.c) {
+                            fantasmas[index].dir = 'left';
+                        } else {
+                            fantasmas[index].dir = 'right';
+                        }
+                    } else {
+                        //pacman está arriba
+                        console.log("fila", pacman.r < f.r);
+                        if (pacman.r < f.r) {
+                            fantasmas[index].dir = 'up';
+                        } else {
+                            fantasmas[index].dir = 'down';
+                        }
+                    }
                 }
+
+
                 const res = nexPosIsAvailable(f);
                 //console.log("available", res);
 
-                if (res.isAvailable) {
+                if (res.isAvailable || (res.block && Math.random() > 0.9)) {
                     // actualizar posición
                     f.c = res.c;
                     f.r = res.r;
-                    console.log(`fantasma ${index} `, f);
-
+                    //console.log('res', res);
+                    //console.log(`fantasma ${index} `, f);
                 }
             }
 
@@ -482,12 +510,12 @@ let pacman = {
 //pacman.pacmanY = pacman.r * TILE_SIZE;
 MAPA[pacman.r][pacman.c] = 1;
 
-function nexPosIsAvailable(pacman) {
+function nexPosIsAvailable(item) {
 
-    //el objeto pacman está disponible 
-    const dir = pacman.dir;
-    nextC = pacman.c;
-    nextR = pacman.r;
+    //el objeto item está disponible 
+    const dir = item.dir;
+    nextC = item.c;
+    nextR = item.r;
 
     //dependiendo de la dirección se calcula la siguiente posible posición
     switch (dir) {
@@ -509,19 +537,23 @@ function nexPosIsAvailable(pacman) {
     if (nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
         return {
             'isAvailable': false, // fuera del mapa
-            'r': r, // no se debe mover
-            'c': c
+            'r': item.r, // no se debe mover
+            'c': item.c,
+            'block': false,
+            'inMargin': !(nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
         };
     return {
         'isAvailable': MAPA[nextR][nextC] !== 0, // fuera del mapa
         'r': nextR, // siguiente posición
-        'c': nextC
+        'c': nextC,
+        'block': MAPA[nextR][nextC] == 0,
+        'inMargin': !(nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
     }; //0  es pared
 
 }
 
 const fantasmas = [
-    { 'c': 3, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
+    { 'c': 3, 'r': 3, 'color': '#f00', 'dir': 'right' },
     { 'c': 7, 'r': 3, 'color': '#73C8D2', 'dir': 'right' },
     { 'c': 11, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },
     { 'c': 13, 'r': 3, 'color': '#F87B1B', 'dir': 'right' },

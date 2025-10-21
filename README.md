@@ -15,6 +15,8 @@
 
 ![alt text](imgs/material_theme.png)
 
+![alt text](imgs/javascriptSnippet.png)
+
 
 
 # Cuerpo del index.html
@@ -672,12 +674,12 @@ window.addEventListener('keydown', (e) => {
 ## Cálculo de la siguiente posición del pacman
 
 ```JavaScript
-function nexPosIsAvailable(pacman) {
+function nexPosIsAvailable(item) {
 
-    //el objeto pacman está disponible 
-    const dir = pacman.dir;
-    nextC = pacman.c;
-    nextR = pacman.r;
+    //el objeto item está disponible 
+    const dir = item.dir;
+    nextC = item.c;
+    nextR = item.r;
 
     //dependiendo de la dirección se calcula la siguiente posible posición
     switch (dir) {
@@ -699,13 +701,17 @@ function nexPosIsAvailable(pacman) {
     if (nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
         return {
             'isAvailable': false, // fuera del mapa
-            'r': r, // no se debe mover
-            'c': c
+            'r': item.r, // no se debe mover
+            'c': item.c,
+            'block': false,
+            'inMargin': !(nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
         };
     return {
         'isAvailable': MAPA[nextR][nextC] !== 0, // fuera del mapa
         'r': nextR, // siguiente posición
-        'c': nextC
+        'c': nextC,
+        'block': MAPA[nextR][nextC] == 0,
+        'inMargin': !(nextR < 0 || nextC < 0 || nextR >= ROWS || nextC >= COLS)
     }; //0  es pared
 
 }
@@ -719,13 +725,18 @@ function nexPosIsAvailable(pacman) {
 
 function dibujarFrame(now) {
 
-    // cuántos segundos transcurridos
+    // cuántos segundos transcurridos desde el frame anterior
     const dseg = (now - lastMoment) / 1000.0;
 
+    // Dependiendo de la velocidad de animación se muestra un nuevo frame
     if (dseg > 1 / velocidadAnimacion) {
-        lastAnimation = (lastAnimation + 1) % 3;
+        //contador de animacion
+        lastAnimation = (lastAnimation + 1) % 4;
+
+        //nuevo 'ultimo momento'
         lastMoment = now;
         //console.log('Tiempo', now);
+        //animación de la boca de pacman
         mouthPulse += 0.25 * Math.PI;
 
         // limpiar todo el canvas
@@ -739,12 +750,14 @@ function dibujarFrame(now) {
             }
         }
 
-        console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
+        //console.log('Pacman en fila:', pacman.r, 'columna:', pacman.c);
 
+        // lastAnimation controla cada cuantos frames se puede mover el pacman  
+        // para dar tiempo de moverse en el mapa      
         if (lastAnimation == 0) {
             // mover pacman si la siguiente posición está disponible
             const res = nexPosIsAvailable(pacman);
-            console.log("available", res);
+            //console.log("available", res);
 
             if (res.isAvailable) {
                 // borrar pacman de la posición actual
@@ -753,8 +766,39 @@ function dibujarFrame(now) {
                 pacman.c = res.c;
                 pacman.r = res.r;
                 MAPA[pacman.r][pacman.c] = 1; // pasillo    
+
+                console.log("available", res);
             }
         }
+        // mover los fantasmas
+
+        fantasmas.forEach((f, index) => {
+
+            if (lastAnimation % 2 == 0) {
+                const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
+                switch (dirF) {
+                    case 0: fantasmas[index].dir = 'up'; break;
+                    case 1: fantasmas[index].dir = 'right'; break;
+                    case 2: fantasmas[index].dir = 'down'; break;
+                    case 3: fantasmas[index].dir = 'left'; break;
+                }
+                const res = nexPosIsAvailable(f);
+                //console.log("available", res);
+
+                if (res.isAvailable || (res.block && Math.random() > 0.5)) {
+                    // actualizar posición
+                    f.c = res.c;
+                    f.r = res.r;
+                    console.log('res', res);
+                    console.log(`fantasma ${index} `, f);
+
+                }
+            }
+
+            dibujarFantasma(ctx, f.c, f.r, TILE_SIZE, f.color);
+
+        });
+
 
     }
 
@@ -868,32 +912,72 @@ function dibujarFrame(now) {
     requestAnimationFrame(dibujarFrame);
 }
 ```
+# Pendientes
 
 
-
-```Javascript
-```
-
-```Javascript
-```
+ 
 
 
+## Lógica para 
 
 ```Javascript
+
+fantasmas.forEach((f, index) => {
+
+    if (lastAnimation % 2 == 0) {
+
+        // CONTROL DE FANTASMAS QUE SE COMPORTAN ALEATORIAMENTE
+        if (index > 3) {
+
+            const dirF = Math.floor(Math.random() * 3.999); // valor entre 0 y 3
+            switch (dirF) {
+                case 0: fantasmas[index].dir = 'up'; break;
+                case 1: fantasmas[index].dir = 'right'; break;
+                case 2: fantasmas[index].dir = 'down'; break;
+                case 3: fantasmas[index].dir = 'left'; break;
+            }
+        } else {
+            // FANTASMAS QUE SE MUEVEN SEGUN POSICIÓN DEL PACMAN
+            // detectar dirección del pacman y dirigir el fantasma
+            // pacman está a la izquierda
+            console.log("pacman", pacman, "fantasma", f);
+            console.log(`${Math.abs(pacman.c - f.c)} > ${Math.abs(pacman.r - f.r)}`);
+            if (Math.abs(pacman.c - f.c) > Math.abs(pacman.r - f.r)) {
+                // el pacman está a la izquierda
+                console.log("columna", pacman.c < f.c);
+                if (pacman.c < f.c) {
+                    fantasmas[index].dir = 'left';
+                } else {
+                    fantasmas[index].dir = 'right';
+                }
+            } else {
+                //pacman está arriba
+                console.log("fila", pacman.r < f.r);
+                if (pacman.r < f.r) {
+                    fantasmas[index].dir = 'up';
+                } else {
+                    fantasmas[index].dir = 'down';
+                }
+            }
+        }
+
+
+        const res = nexPosIsAvailable(f);
+        //console.log("available", res);
+
+        if (res.isAvailable || (res.block && Math.random() > 0.9)) {
+            // actualizar posición
+            f.c = res.c;
+            f.r = res.r;
+            //console.log('res', res);
+            //console.log(`fantasma ${index} `, f);
+        }
+    }
+
+    dibujarFantasma(ctx, f.c, f.r, TILE_SIZE, f.color);
+
+});
+ 
 ```
 
-```Javascript
-```
-
-
-
-```Javascript
-```
-
-```Javascript
-```
-
-
-
-```Javascript
-```
+![alt text](imgs/pantalla03.png) 
